@@ -2,7 +2,9 @@
 title: "Dissertation convert to r code"
 author: "Joseph Doyle"
 date: "15/02/2020"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -27,13 +29,13 @@ data<-read.csv("GOOG.csv")
 
 
 ```{r pressure, echo=FALSE}
-chartSeries(AAPL)
+chartSeries(GOOG)
 myts<- data[c(1:3800),c(2,3,4,5,7)]
 plot.ts(myts$Close)
 ```
 ## Standardisation
 
-```{r pressure, echo=FALSE}
+```{r , echo=FALSE}
 msd.open = c(mean(myts$Open), sd(myts$Open))
 msd.low = c(mean(myts$Low), sd(myts$Low))
 msd.close = c(mean(myts$Close), sd(myts$Close))
@@ -73,28 +75,24 @@ model %>%
   layer_lstm(units = 100,
              input_shape = c(datalags, 5),
              batch_size = batch.size,
-             return_sequences = TRUE,
-             stateful = TRUE) %>%
+             return_sequences = TRUE) %>%
   layer_dropout(rate = 0.5) %>%
   layer_lstm(units = 50,
-             return_sequences = FALSE,
-             stateful = TRUE) %>%
+             return_sequences = FALSE) %>%
   layer_dropout(rate = 0.5) %>%
   layer_dense(units = 1)
 
 model %>%
-  compile(loss = 'mae', optimizer = 'adam')
+  compile(loss = 'mae', optimizer = 'adam', validation_split="0.1")
 
 model
-
-for(i in 1:2700){
+{
   model %>% fit(x = x.train,
                 y = y.train,
                 batch_size = batch.size,
-                epochs = 1,
-                verbose = 0,
+                epochs = 50,
+                verbose = 1,
                 shuffle = FALSE)
-  model %>% reset_states()
 }
 ```
 #Predictions
