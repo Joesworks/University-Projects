@@ -3,8 +3,8 @@ title: "Dissertation convert to r code"
 author: "Joseph Doyle"
 date: "15/02/2020"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
