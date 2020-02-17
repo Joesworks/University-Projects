@@ -1,5 +1,5 @@
 ---
-title: "Basic LSTM code"
+title: "BasicLSTMcode"
 author: "Joseph Doyle"
 date: "17/02/2020"
 output: 
@@ -11,8 +11,8 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.path = "Figs")
 ```
-
 ## Imports
 
 
@@ -31,10 +31,13 @@ data<-read.csv("GOOG.csv")
 ## Plots
 
 
-```{r Google Stock Price Plots, echo=FALSE}
+```{r GoogleStockPricePlots, echo=FALSE}
+
 chartSeries(GOOG)
+
 myts<- data[c(1:3800),c(2,3,4,5,7)]
-plot.ts(myts$Close)
+plot(myts$Close)
+
 ```
 ## Standardisation of the data
 ```{r Standardisation}
@@ -67,7 +70,7 @@ x.test = array(data = lag(cbind(test$Volume, test$Close, test$High,test$Open,tes
 y.test = array(data = test$Close[-(1:datalags)], dim = c(nrow(test) - datalags, 1))
 ```
 #Model 
-```{r fitting model}
+```{r fittingmodel}
 model <- keras_model_sequential()
 
 model %>%
