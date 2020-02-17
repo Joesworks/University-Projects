@@ -100,15 +100,20 @@ model
 ```
 
 ```{r Results}
+
+knitr::include_graphics("FigsResults-1.png")
+
 pred_out <- model %>% predict(x.test, batch_size = batch.size) %>% .[,1]
 
 myts$index <- 1:nrow(myts) 
 
 tsactual<-data[c(2701:3790),c(5)]
 
-plot_ly(myts, x = ~index, y = ~Close, type = "scatter", mode = "markers", color = ~Volume) %>%
-  add_trace(y = c(rep(NA, 2700), pred_out), x = myts$index, name = "LSTM prediction", mode = "lines")
+#plot_ly(myts, x = ~index, y = ~Close, type = "scatter", mode = "markers", color = ~Volume) %>%
+ # add_trace(y = c(rep(NA, 2700), pred_out), x = myts$index, name = "LSTM prediction", mode = "lines")
+  
 plot(history)
+
 
 yhat<- pred_out[c(0:1090)]*msd.close[2]+msd.close[1]
 Testerror<-rmse(tsactual,yhat)
