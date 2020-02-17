@@ -65,7 +65,7 @@ x.test = array(data = lag(cbind(test$Volume, test$Close, test$High,test$Open,tes
 y.test = array(data = test$Close[-(1:datalags)], dim = c(nrow(test) - datalags, 1))
 ```
 #Model 
-```{r}
+```{r fitting model}
 model <- keras_model_sequential()
 
 model %>%
