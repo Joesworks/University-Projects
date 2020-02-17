@@ -56,7 +56,7 @@ model
                 y = y.train,
                 batch_size = batch.size,
                 repeats = 10,
-                epochs = 5,
+                epochs = 50,
                 verbose = 1,
                 validation_split = 0.1,
                 shuffle = FALSE)
