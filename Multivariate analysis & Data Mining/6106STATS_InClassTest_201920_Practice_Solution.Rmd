@@ -1,0 +1,75 @@
+---
+title: "Natural selection of sparrows"
+author: "Ivo Siekmann"
+date: "05/02/2020"
+output:
+  html_document:
+    df_print: paged
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+The survival of sparrows affected by a severe storm was investigated using a historic data set. Five morphological variables such as length and wingspan were measured and for each bird it is known if it died shortly after the storm or survived. Principal Component Analysis (PCA) was applied to these data to gain insight what distinguishes survivors and non-survivors.
+
+A matrix plot of the data is shown below:
+```{r matrix}
+females<-read.csv("sparrows_female.csv")
+plot(subset(females, select=-survive), 
+     col=ifelse(females$survive==0, "red", "blue"))
+```
+
+## Methods
+
+Principal Component Analysis (PCA) transforms a data set consisting of correlated variables to uncorrelated variables. The uncorrelated variables are linear combinations of the original correlated variables. In R, PCA is implemented via the prcomp command
+
+```{r prcomp}
+females.pca <- prcomp(subset(females, select=-survive), 
+                    center = TRUE, scale = TRUE)
+```
+
+## Results
+
+We obtain the following principal components along with their standard deviations:
+```{r}
+print(females.pca)
+```
+
+We observe that the first two PCs already explain more than 80% of the total variance.
+```{r varPCA}
+summary(females.pca)
+```
+We now plot the scores on the first two PCs:
+```{r}
+# plot(females.pca$x[,1], females.pca$x[,2],col=ifelse(females$survive==1,"blue","red"))
+plot(females.pca$x[,1:2],col=ifelse(females$survive==1,"blue","red"))
+```
+
+We cannot identify clear clusters. But the non-survivors seem to have a more wide-spread distribution, in particular on the first principal component. We will visualise this by adding a covariance ellipse. 
+
+```{r cov}
+females.pca.cov<-diag(females.pca$sdev[1:2]^2)
+females.pca.cov
+```
+The covariance ellipse is now added to the scatter plot of the principal component scores.
+```{r plotCov}
+source("covEllipse.r")
+plot(females.pca$x[,1:2],col=ifelse(females$survive==1,"blue","red"))
+covEllipse<-calculateCovEllipse(S=females.pca.cov, scale=1.79)
+lines(covEllipse)
+```
+
+It clearly shows that the majority of samples outside the covariance ellipse are non-survivors. Non-survivors either seem to have high or low scores on the first PC.
+
+## Discussion
+
+The first PC gives approximately equal weight to all variables. This means that large birds with high values for all variables will score high whereas small birds with low values for all variables will score low on this PC. This shows that this PC measures overall body size.
+```{r pc1}
+females.pca$rotation[,1]
+```
+We have found that the non-survivors show a larger range on the first PC - among the birds that died are both very small and very large birds. This indicates that natural selection favours individuals that do not deviate too much from the mean.

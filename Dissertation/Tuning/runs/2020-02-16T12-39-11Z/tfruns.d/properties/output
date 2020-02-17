@@ -1,0 +1,127 @@
+
+> library(keras)
+
+> library(tensorflow)
+
+> library(tidyverse)
+
+> library(quantmod)
+
+> library(plotly)
+
+> library(Metrics)
+
+> getSymbols("GOOG")
+[1] "GOOG"
+
+> head(GOOG)
+           GOOG.Open GOOG.High GOOG.Low GOOG.Close GOOG.Volume GOOG.Adjusted
+2007-01-03  232.1299  237.4400 229.6940   232.9220    15470700      232.9220
+2007-01-04  233.6243  241.0714 233.3005   240.7277    15834200      240.7277
+2007-01-05  240.3491  242.8398 238.1623   242.6853    13795600      242.6853
+2007-01-08  242.9344  244.0204 240.1997   240.8871     9544400      240.8871
+2007-01-09  241.8186  243.2134 239.7015   241.8435    10803000      241.8435
+2007-01-10  241.3105  245.8535 240.1200   243.8161    11981700      243.8161
+
+> data<-read.csv("GOOG.csv")
+
+> chartSeries(GOOG)
+
+> myts<- data[c(1:3800),c(2,3,4,5,7)]
+
+> plot.ts(myts$Close)
+
+> msd.open = c(mean(myts$Open), sd(myts$Open))
+
+> msd.low = c(mean(myts$Low), sd(myts$Low))
+
+> msd.close = c(mean(myts$Close), sd(myts$Close))
+
+> msd.high = c(mean(myts$High), sd(myts$High))
+
+> msd.vol = c(mean(myts$Volume), sd(myts$Volume))
+
+> myts$Close = (myts$Close - msd.close[1])/msd.close[2]
+
+> myts$Volume = (myts$Volume - msd.vol[1])/msd.vol[2]
+
+> myts$High = (myts$High-msd.high[1])/msd.high[2]
+
+> myts$Open=(myts$Open-msd.open[1])/msd.open[2]
+
+> myts$Low=(myts$Low-msd.low[1])/msd.low[2]
+
+> datalags = 10
+
+> train = myts[seq(2700 + datalags), ]
+
+> test = myts[2700 + datalags + seq(1100 + datalags), ]
+
+> batch.size = 50
+
+> x.train = array(data = lag(cbind(train$Close, train$Volume,train$High,train$Open,train$Low), datalags)[-(1:datalags), ], dim = c(nrow(train) - datal .... [TRUNCATED] 
+
+> y.train = array(data = train$Close[-(1:datalags)], dim = c(nrow(train)-datalags, 1))
+
+> x.test = array(data = lag(cbind(test$Volume, test$Close, test$High,test$Open,test$Low),datalags)[-(1:datalags), ], dim = c(nrow(test) - datalags, da .... [TRUNCATED] 
+
+> y.test = array(data = test$Close[-(1:datalags)], dim = c(nrow(test) - datalags, 1))
+
+> model <- keras_model_sequential()
+
+> model %>%
++   layer_lstm(units = 100,
++              input_shape = c(datalags, 5),
++              batch_size = batch.size,
++              return_seq .... [TRUNCATED] 
+
+> model %>%
++   compile(loss = 'mae', optimizer = 'adam', validation_split="0.1")
+
+> model
+Model
+Model: "sequential_11"
+_________________________________________________________________________________________
+Layer (type)                            Output Shape                       Param #       
+=========================================================================================
+lstm_22 (LSTM)                          (50, 10, 100)                      42400         
+_________________________________________________________________________________________
+dropout_22 (Dropout)                    (50, 10, 100)                      0             
+_________________________________________________________________________________________
+lstm_23 (LSTM)                          (50, 50)                           30200         
+_________________________________________________________________________________________
+dropout_23 (Dropout)                    (50, 50)                           0             
+_________________________________________________________________________________________
+dense_11 (Dense)                        (50, 1)                            51            
+=========================================================================================
+Total params: 72,651
+Trainable params: 72,651
+Non-trainable params: 0
+_________________________________________________________________________________________
+
+
+
+> {
++  history<- model %>% fit(x = x.train,
++                 y = y.train,
++                 batch_size = batch.size,
++                 repeats = 10,
+ .... [TRUNCATED] 
+
+> pred_out <- model %>% predict(x.test, batch_size = batch.size) %>% .[,1]
+
+> myts$index <- 1:nrow(myts) 
+
+> tsactual<-data[c(2701:3790),c(5)]
+
+> plot_ly(myts, x = ~index, y = ~Close, type = "scatter", mode = "markers", color = ~Volume) %>%
++   add_trace(y = c(rep(NA, 2700), pred_out), x = myt .... [TRUNCATED] 
+
+> plot(history)
+
+> yhat<- pred_out[c(0:1090)]*msd.close[2]+msd.close[1]
+
+> Testerror<-rmse(tsactual,yhat)
+
+> Testerror
+[1] 49.91963

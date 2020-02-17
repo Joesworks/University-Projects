@@ -1,0 +1,4 @@
+{
+  "message": "cannot open the connection",
+  "traceback": ["file(file, \"rt\")", "read.table(file = file, header = header, sep = sep, quote = quote, \n    dec = dec, fill = fill, comment.char = comment.char, ...)", "read.csv(\"GOOG.csv\")", "eval(ei, envir)", "eval(ei, envir)", "training_run(\"lstm 5 epoch.r\")"]
+}
