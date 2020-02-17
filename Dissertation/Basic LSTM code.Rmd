@@ -3,8 +3,8 @@ title: "Basic LSTM code"
 author: "Joseph Doyle"
 date: "17/02/2020"
 output: 
-github_document:
   html_document: 
+    fig_caption: yes
     keep_md: yes
 ---
 
